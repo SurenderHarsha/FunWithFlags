@@ -174,13 +174,13 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
                 feedback = '<p>Too slow... the correct answer was: <b>' + trial.question.answer + '</b></p>';
             }
             else if (cont_score <= 25) {
-                feedback = '<p> Wrong! The correct answer was: <b>' + trial.question.answer + '  ' + trial.question.exp + '</b></p>'
+                feedback = '<p style="color:red;"> Wrong! The correct answer was: <b>' + trial.question.answer + '  ' + trial.question.exp + '</b></p>'
             } else if (cont_score <= 50 && cont_score >= 25) {
-                feedback = '<p> Wrong! Your score is ' + Math.round(cont_score) + '%. Try to improve the spelling of the country: <b>' + trial.question.answer + '</b></p>'
+                feedback = '<p style="color:orange;"> Wrong! Your score is ' + Math.round(cont_score) + '%. Try to improve the spelling of the country: <b>' + trial.question.answer + '</b></p>'
             } else if (cont_score <= 75 && cont_score >= 50) {
-                feedback = '<p> Getting there! Your score is ' + Math.round(cont_score) + '%. Pay attention to the spelling: <b>' + trial.question.answer + '</b></p>'
+                feedback = '<p style="color:yellow;"> Getting there! Your score is ' + Math.round(cont_score) + '%. Pay attention to the spelling: <b>' + trial.question.answer + '</b></p>'
             } else if (cont_score <= 99 && cont_score >= 75) {
-                feedback = '<p> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the detials: <b>' + trial.question.answer + '</b></p>'
+                feedback = '<p style="color:green;"> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the detials: <b>' + trial.question.answer + '</b></p>'
             } else if (cont_score >= 99) {
                 feedback = '<p> Well done, correct</p>'
            
@@ -311,7 +311,89 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
             points_same_letters = 30 * distance_same_letters(original_word,users_word);
             points_ordered_letters = 60 * distance_ordered_letters(original_word,users_word);
             points_same_word = 10 * distance_same_word(original_word,users_word);
+            console.log("Score"+points_same_letters + points_ordered_letters + points_same_word);
             return points_same_letters + points_ordered_letters + points_same_word;
+        }
+
+
+        var l_dist = function(reference_word,input_word){
+            if(reference_word.length < input_word.length){
+      original_word = reference_word;
+      users_word = input_word;
+        }
+        else{
+          original_word = input_word;
+          users_word = reference_word;
+        }
+        
+        var levenshtein_matrix = [];
+        var mins_dist = new Array(users_word.length-1);
+        
+        for (var i=0; i<=original_word.length; i++){
+          levenshtein_matrix[i] = new Array(users_word.length);
+        }
+        
+        for (var i=0; i<users_word.length; i++){
+          mins_dist[i] = 100;
+        }
+        
+        for (var i=0; i<=original_word.length; i++){
+          for (var j=0; j<=users_word.length; j++){
+            if(i==0){
+              levenshtein_matrix[i][j] = j;
+            }
+            else if(j==0){
+              levenshtein_matrix[i][j] = i;
+            }
+            else{
+              if (original_word[i-1] == users_word[j-1] && levenshtein_matrix[i-1][j-1] == 0){
+                levenshtein_matrix[i][j] = 0;
+                mins_dist[j-1] = 0;
+              }
+              else if (original_word[i-1] == users_word[j-1] && users_word[j-1] != users_word[j-2] && original_word[i-1] != original_word[i-2]){
+                deletion = levenshtein_matrix[i-1][j];
+                insertion = levenshtein_matrix[i][j-1];
+                substitution = levenshtein_matrix[i-1][j-1];
+                mins = Math.min(deletion,insertion,substitution);
+                levenshtein_matrix[i][j] = mins;
+                if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
+              }
+              else if (original_word[i-1] == users_word[j-1] && users_word[j-1] == users_word[j-2] && original_word[i-1] == original_word[i-2]){
+                deletion = levenshtein_matrix[i-1][j];
+                insertion = levenshtein_matrix[i][j-1];
+                substitution = levenshtein_matrix[i-1][j-1];
+                mins = Math.min(deletion,insertion,substitution);
+                levenshtein_matrix[i][j] = mins;
+                if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
+              }
+              else{
+                deletion = levenshtein_matrix[i-1][j] + 1;
+                insertion = levenshtein_matrix[i][j-1] + 1;
+                substitution = levenshtein_matrix[i-1][j-1] + 1;
+                mins = Math.min(deletion,insertion,substitution);
+                levenshtein_matrix[i][j] = mins;
+                if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
+              }
+            }
+            }
+        }
+        
+        var result = 0;
+        
+        for (var i=0; i<mins_dist.length; i++){
+          result =mins_dist[mins_dist.length-1];
+        }
+        
+        result = (reference_word.length - result) / reference_word.length;
+        
+        if (result < 0){result = 0;}
+        console.log("Score:"+result*100);
+        return result * 100;
+
+
+
+
+
         }
 
         var is_response_correct = function () {
@@ -324,7 +406,7 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
 
         var compute_correstness_score = function () {
             
-            cont_score = distance(final_response,trial.question.answer);
+            cont_score = l_dist(final_response,trial.question.answer);
             return cont_score
         }
 
