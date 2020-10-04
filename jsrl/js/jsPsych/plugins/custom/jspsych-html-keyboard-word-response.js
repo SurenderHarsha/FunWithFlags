@@ -182,7 +182,7 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
             } else if (cont_score <= 99 && cont_score >= 75) {
                 feedback = '<p style="color:green;"> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the detials: <b>' + trial.question.answer + '</b></p>'
             } else if (cont_score >= 99) {
-                feedback = '<p> Well done, correct</p>'
+                feedback = '<p style="color:green;"> Well done, correct</p>'
            
             }
 
