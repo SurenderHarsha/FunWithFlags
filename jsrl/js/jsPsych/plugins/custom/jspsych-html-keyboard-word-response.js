@@ -174,15 +174,15 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
                 feedback = '<p>Too slow... the correct answer was: <b>' + trial.question.answer + '</b></p>';
             }
             else if (cont_score <= 25) {
-                feedback = '<p style="color:red;"> Wrong! The correct answer was: <b>' + trial.question.answer + '  ' + trial.question.exp + '</b></p>'
+                feedback = '<h3 style="color:#FE2712;"> Wrong! The correct answer was: ' + trial.question.answer + '  ' + trial.question.exp + '</b></h3>', new Audio('res/audio/incorrect.wav').play();
             } else if (cont_score <= 50 && cont_score >= 25) {
-                feedback = '<p style="color:orange;"> Wrong! Your score is ' + Math.round(cont_score) + '%. Try to improve the spelling of the country: <b>' + trial.question.answer + '</b></p>'
+                feedback = '<h3 style="color:#FC600A;"> Wrong! Your score is ' + Math.round(cont_score) + '%. Try to improve the spelling: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
             } else if (cont_score <= 75 && cont_score >= 50) {
-                feedback = '<p style="color:yellow;"> Getting there! Your score is ' + Math.round(cont_score) + '%. Pay attention to the spelling: <b>' + trial.question.answer + '</b></p>'
+                feedback = '<h3 style="color:#FB9902;"> Getting there! Your score is ' + Math.round(cont_score) + '%. Pay attention to the spelling: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
             } else if (cont_score <= 99 && cont_score >= 75) {
-                feedback = '<p style="color:green;"> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the detials: <b>' + trial.question.answer + '</b></p>'
+                feedback = '<h3 style="color:#FCCC1A;"> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the detials: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
             } else if (cont_score >= 99) {
-                feedback = '<p style="color:green;"> Well done, correct</p>'
+                feedback = '<p style="color:#B2D732;">  Well done, correct! </p>', new Audio('res/audio/correct.wav').play();
            
             }
 
@@ -263,58 +263,8 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
             return backspaced_first_letter ? Infinity : responses[0].rt;
         }
 
-
-        var distance_same_letters = function(original_word,users_word) {
-            working_og = original_word;
-            working_us = users_word;
-            n_letters_og = working_og.length;
-            n_letters_us = working_us.length;
-            n_letters_comparison = Math.max(working_og.length,working_us.length);
-          
-            for (i = 0; i < working_og.length; i++){
-                working_us = working_us.replace(working_og[i], '');
-            }
-          
-            remaining_letters_us = working_us.length;
-          
-            result = (n_letters_us - remaining_letters_us) / n_letters_comparison;
-            return result;    
-        }
-
-        var distance_bits = function(original_word,users_word){
-            result = 0;
-            
-            for (i = 0; i < original_word.length; i++){
-              if(original_word[i] == users_word[i]){
-                result++;
-              }
-            }
-            
-            return result/original_word.length;
-        }
-
-        var distance_ordered_letters = function(original_word,users_word){
-            working_og = original_word;
-            working_us = users_word;
-            
-            result = distance_bits(working_og,working_us);
-            
-            return result;
-        }
-
-        var distance_same_word = function(original_word,users_word){
-            if (original_word == users_word){	return 1;}
-            else{	return 0;}
-        }
-
-        var distance = function(original_word,users_word){
-            points_same_letters = 30 * distance_same_letters(original_word,users_word);
-            points_ordered_letters = 60 * distance_ordered_letters(original_word,users_word);
-            points_same_word = 10 * distance_same_word(original_word,users_word);
-            console.log("Score"+points_same_letters + points_ordered_letters + points_same_word);
-            return points_same_letters + points_ordered_letters + points_same_word;
-        }
-
+        
+        // calculate the continious correctness score:
 
         var l_dist = function(reference_word,input_word){
             if(reference_word.length < input_word.length){
@@ -389,10 +339,6 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
         if (result < 0){result = 0;}
         console.log("Score:"+result*100);
         return result * 100;
-
-
-
-
 
         }
 
