@@ -87,7 +87,7 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
             block: {
                 type: jsPsych.plugins.parameterType.STRING,
                 pretty_name: 'block',
-                default: 'F',
+                default: 'A',
                 description: 'block'
 
             },
@@ -169,23 +169,34 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
             display_element.querySelector("#jspsych-html-keyboard-word-response-answerInput").disabled = true;
             display_element.querySelector("#jspsych-html-keyboard-word-response-answerInput").value = final_response;
 
-
-            if (timed_out) {
-                feedback = '<p>Too slow... the correct answer was: <b>' + trial.question.answer + '</b></p>';
+            if (trial.block == 'A') {
+                if (correct) {
+                    feedback = '<p>Correct!</p>';
+                } else if (timed_out) {
+                    feedback = '<p>Too slow... the correct answer was: <b>' + trial.question.answer + '</b></p>';
+                } else {
+                    feedback = '<p> Wrong! The correct answer was: <b>' + trial.question.answer + '  ' + trial.question.exp + '</b></p>';
+                }  
             }
-            else if (cont_score <= 25) {
-                feedback = '<h3 style="color:#FE2712;"> Wrong! The correct answer was: ' + trial.question.answer + '  ' + trial.question.exp + '</b></h3>', new Audio('res/audio/incorrect.wav').play();
-            } else if (cont_score <= 50 && cont_score >= 25) {
-                feedback = '<h3 style="color:#FC600A;"> Wrong! Your score is ' + Math.round(cont_score) + '%. Try to improve the spelling: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
-            } else if (cont_score <= 75 && cont_score >= 50) {
-                feedback = '<h3 style="color:#FB9902;"> Getting there! Your score is ' + Math.round(cont_score) + '%. Pay attention to the spelling: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
-            } else if (cont_score <= 99 && cont_score >= 75) {
-                feedback = '<h3 style="color:#FCCC1A;"> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the detials: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
-            } else if (cont_score >= 99) {
-                feedback = '<p style="color:#B2D732;">  Well done, correct! </p>', new Audio('res/audio/correct.wav').play();
-           
+            
+            else if (trial.block == 'B') {
+                if (timed_out) {
+                    feedback = '<p>Too slow... the correct answer was: <b>' + trial.question.answer + '</b></p>';
+                }
+                else if (cont_score <= 25) {
+                    feedback = '<h3 style="color:#FE2712;"> Wrong! The correct answer was: ' + trial.question.answer + '  ' + trial.question.exp + '</b></h3>', new Audio('res/audio/incorrect.wav').play();
+                } else if (cont_score <= 50 && cont_score >= 25) {
+                    feedback = '<h3 style="color:#FC600A;"> Wrong! Your score is ' + Math.round(cont_score) + '%. Try to improve the spelling: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
+                } else if (cont_score <= 75 && cont_score >= 50) {
+                    feedback = '<h3 style="color:#FB9902;"> Getting there! Your score is ' + Math.round(cont_score) + '%. Pay attention to the spelling: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
+                } else if (cont_score <= 99 && cont_score >= 75) {
+                    feedback = '<h3 style="color:#FCCC1A;"> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the detials: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
+                } else if (cont_score >= 99) {
+                    feedback = '<p style="color:#B2D732;">  Well done, correct! </p>', new Audio('res/audio/correct.wav').play();
+               
+                }
             }
-
+            
         
             display_element.querySelector("#jspsych-html-keyboard-word-response-feedback").innerHTML = feedback;
 
