@@ -403,22 +403,36 @@ function min(list, minWith) {
 }
 
 function normalise_reaction_time(response) {
-    var reaction_time = [];
-    const distance_factor = 0.8;
-    if (response.cont_score > 25) {
-        reaction_time = response.rt * distance_factor * (1 + (1 - (response.cont_score/100)) );
+
+    if (response.block == 'A'){
+        const reaction_time = response.correct ? response.rt : 60 * 1000;
+        const max_reaction_time = get_max_reaction_time_for_fact(response.text);
+        return reaction_time > max_reaction_time ? max_reaction_time : reaction_time;
+        
     }
-    else {
-        reaction_time = 6000
+
+    else if (response.block == "B"){
+        
+        var reaction_time = [];
+        const distance_factor = 0.8;
+        
+        if (response.cont_score > 25) {
+            reaction_time = response.rt * distance_factor * (1 + (1 - (response.cont_score/100)) );
+        }
+        else {
+            reaction_time = 6000
+        }
+        
+        const max_reaction_time = get_max_reaction_time_for_fact(response.text);
+       
+        console.log('actual RT: ' + response.rt)
+        console.log('score: ' + response.cont_score)
+        console.log('adj RT: ' + reaction_time)
+    
+        return reaction_time > max_reaction_time ? max_reaction_time : reaction_time;
+
     }
     
-    const max_reaction_time = get_max_reaction_time_for_fact(response.text);
-   
-    console.log('actual RT: ' + response.rt)
-    console.log('score: ' + response.cont_score)
-    console.log('adj RT: ' + reaction_time)
-
-    return reaction_time > max_reaction_time ? max_reaction_time : reaction_time;
 }
 
 
