@@ -372,7 +372,9 @@
     var instructions_doneB = {
         type: 'instructions',
         pages: ['<h1> Done! </h1> <br>  \
+
         <p> Well done! You completed this experiment. PLease press the <kbd>spacebar </kbd> to save the data <p>'],
+
         key_forward: 'spacebar'
     };
 
@@ -421,8 +423,10 @@
         timeline: timeline,
         on_interaction_data_update: check_focus_loss,
         on_finish: function () {
-            save_data("FUN_WITH_FLAGS" + participant_number , jsPsych.data.get().csv(), function () {
-                document.write('<div class="endscreen" style="text-align:center; border:0px solid; padding:10px; font-size:120%; float:center"><br><p>Done and data saved!</p><br><br><p>Thank you very much for your participation. You can close the window.</p></div>')
+
+            save_data("FunWithFlags_" + participant_number, jsPsych.data.get().csv(), function () {
+                document.write('<div class="endscreen" style="text-align:center; border:0px solid; padding:10px; font-size:120%; float:center"><br><p>Done & data saved!</p><br><br><p>Thank you very much for your participation. You can close the window.</p></div>')
+
                 document.close();
             });
         }
