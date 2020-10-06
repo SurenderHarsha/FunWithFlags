@@ -39,12 +39,16 @@
     //    Configuration    //
     //---------------------//
 
-    var materials = 'res/materials.csv'
+    var materialsA = 'res/materialsA.csv'
+    var materialsB = 'res/materialsB.csv'
     var lang = 'english'
     
     // Durations
 
-    const rl_duration = 2 * 60000; // 10 minutes  
+    const rl_durationA = 3 * 60000; // Duration learning block A in ms
+    const rl_durationB = 3 * 60000; // Duration learning block B in ms
+
+
     const correct_feedback_duration = 600; // 0.6 seconds
     const almost_correct_feedback_duration = 1200; // 1.2 seconds
     const incorrect_feedback_duration = 4000; // 4 seconds
@@ -54,7 +58,8 @@
     const max_trial_duration = 30000 // move on to next trial after 30 seconds
 
     // Materials
-    const n_items = 7; // number of items 
+    const n_itemsA = 10; // number of items in block A
+    const n_itemsB = 10; // number of items in block B
     const shuffle_items = true; // new items are picked randomly
     const preload_audio = true; // preloading prevents delays
     const permissible_edit_distance = 4
@@ -64,7 +69,7 @@
     // Spacing model
     const lookahead_time = 15000;
     const forget_threshold = -0.8;
-    const default_alpha = 0.35;
+    const default_alpha = 0.3;
 
     // Bayesian model
     // Hyperparameters of the Normal-Gamma prior
@@ -158,50 +163,51 @@
         }
     };
 
-  
+  // BLOCK A: REGULAR SLIMSTAMPEN //
 
-    // Setup
-     var rl_setup = {
+   // Setup
+   var rl_setupA = {
         type: 'call-function',
         func: function () {
-            load_facts(materials, shuffle_items); // calls the function in rl-model.js
+            load_facts(materialsA, shuffle_items); // calls the function in rl-model.js
             console.log(facts)
         }
     
     
-};
+    };
 
-    var instructions = {
+    var instructionsA = {
         type: 'instructions',
         pages: ['<h1>Instructions </h1> <br>  \
         <p> In this experiment, you will learn the names of countries. </br>\
-        Please type the correct country name in the text box.\
+        The experiment consists of two 10 minute learning sessons and two test sessions. We will start with the first learning session. Please type the correct country name in the text box.\
         <p> Press the <kbd>spacebar </kbd> to continue.</p>'],
         key_forward: 'spacebar'
     };
 
     // RL trial sequence
-    var rl_start_time;
+    var rl_start_timeA;
 
     // Initialise timer
-    var rl_timer = {
+    var rl_timerA = {
         type: 'call-function',
         func: function () {
-            rl_start_time = Date.now();
+            rl_start_timeA = Date.now();
             rl_timer_ticks = setInterval(function () {
-                var proportion_time_elapsed = (Date.now() - rl_start_time) / rl_duration;
+                var proportion_time_elapsed = (Date.now() - rl_start_timeA) / rl_durationA;
             }, 100);
         }
     };
     
     // RL trial 
-    var rl_trial = {
+    var rl_trialA = {
         type: "html-keyboard-word-response",
         correct_feedback_duration: correct_feedback_duration,
         almost_correct_feedback_duration: almost_correct_feedback_duration,
         incorrect_feedback_duration: incorrect_feedback_duration,
         trial_duration: trial_duration,
         permissible_edit_distance: permissible_edit_distance,
+        block: 'A',
         question: function () {
             return get_next_fact(Date.now()); // calls the function in rl-model.js
         },
@@ -214,10 +220,10 @@
     };
 
     // Present new trials until time is up 
-    var loop_rl_trial = {
-        timeline: [rl_trial],
+    var loop_rl_trialA = {
+        timeline: [rl_trialA],
         loop_function: function () {
-            if (Date.now() - rl_start_time < rl_duration) {
+            if (Date.now() - rl_start_timeA < rl_durationA) {
                 return true;
             } else {
                 return false;
@@ -225,22 +231,23 @@
         }
     };
 
-    var test_instructions = {
+    var test_instructionsA = {
         type: 'instructions',
         pages: ['<h1> Test! </h1> <br>  \
-        <p> Next, you will make a test with the countries and flags that you have learned during the learning session.\
+        <p> Done with the frist learning block! Next, you will make a test with the countries and flags that you have learned during the learning session.\
         <p> Press the <kbd>spacebar </kbd> to continue.</p>'],
         key_forward: 'spacebar'
     };
 
     // Test trial
-    var rl_test = {
+    var rl_testA = {
         type: "html-keyboard-word-response",
         correct_feedback_duration: correct_feedback_duration,
         almost_correct_feedback_duration: almost_correct_feedback_duration,
         incorrect_feedback_duration: incorrect_feedback_duration,
         trial_duration: trial_duration,
         permissible_edit_distance: permissible_edit_distance,
+        block: 'A',
         question: function () {
             return get_next_practised_fact(Date.now()); // calls the function in rl-model.js
         },
@@ -253,17 +260,121 @@
     };
 
     // Present a new test trial for every fact that was studied 
-    var loop_rl_test = {
-       timeline: [rl_test],
+    var loop_rl_testA = {
+       timeline: [rl_testA],
        loop_function: function () {
            return is_next_practised_fact();
        }
     };
 
-    var instructions_done = {
+    var instructions_doneA = {
+        type: 'instructions',
+        pages: ['<h1> Done with part one! </h1> <br>  \
+        <p> Well done! You completed the first part of the experiment. Next, another learning block will follow. Please press the <kbd>spacebar </kbd> to go to the second part.<p>'],
+        key_forward: 'spacebar'
+    };
+
+  // BLOCK B: CONTINUOUS SLIMSTAMPEN //
+
+    // Setup
+     var rl_setupB = {
+        type: 'call-function',
+        func: function () {
+            load_facts(materialsB, shuffle_items); // calls the function in rl-model.js
+            console.log(facts)
+        }
+    
+    
+    };
+
+    // RL trial sequence
+    var rl_start_timeB;
+
+    // Initialise timer
+    var rl_timerB = {
+        type: 'call-function',
+        func: function () {
+            rl_start_timeB = Date.now();
+            rl_timer_ticks = setInterval(function () {
+                var proportion_time_elapsed = (Date.now() - rl_start_timeB) / rl_durationB;
+            }, 100);
+        }
+    };
+    
+    // RL trial 
+    var rl_trialB = {
+        type: "html-keyboard-word-response",
+        correct_feedback_duration: correct_feedback_duration,
+        almost_correct_feedback_duration: almost_correct_feedback_duration,
+        incorrect_feedback_duration: incorrect_feedback_duration,
+        trial_duration: trial_duration,
+        permissible_edit_distance: permissible_edit_distance,
+        block: 'B',
+        question: function () {
+            return get_next_fact(Date.now()); // calls the function in rl-model.js
+        },
+        on_finish: function (data) {
+            record_response(data);
+            if (data.study) {
+                count_studied++;
+            }
+        }
+    };
+
+    // Present new trials until time is up 
+    var loop_rl_trialB = {
+        timeline: [rl_trialB],
+        loop_function: function () {
+            if (Date.now() - rl_start_timeB < rl_durationB) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    var test_instructionsB = {
+        type: 'instructions',
+        pages: ['<h1> Test! </h1> <br>  \
+        <p> Done with the second learning part! Next, you will make a test with the countries and flags that you have learned.\
+        <p> Press the <kbd>spacebar </kbd> to continue.</p>'],
+        key_forward: 'spacebar'
+    };
+
+    // Test trial
+    var rl_testB = {
+        type: "html-keyboard-word-response",
+        correct_feedback_duration: correct_feedback_duration,
+        almost_correct_feedback_duration: almost_correct_feedback_duration,
+        incorrect_feedback_duration: incorrect_feedback_duration,
+        trial_duration: trial_duration,
+        permissible_edit_distance: permissible_edit_distance,
+        block: 'B',
+        question: function () {
+            return get_next_practised_fact(Date.now()); // calls the function in rl-model.js
+        },
+        on_finish: function (data) {
+            record_response(data);
+            if (data.study) {
+                count_studied++;
+            }
+        }
+    };
+
+    // Present a new test trial for every fact that was studied 
+    var loop_rl_testB = {
+       timeline: [rl_testB],
+       loop_function: function () {
+           return is_next_practised_fact();
+       }
+    };
+
+    var instructions_doneB = {
         type: 'instructions',
         pages: ['<h1> Done! </h1> <br>  \
-        <p> Well done! You completed this experiment. Please press the spacebar to store the data.<p>'],
+
+        <p> Well done! You completed this experiment. PLease press the <kbd>spacebar </kbd> to save the data <p>'],
+
         key_forward: 'spacebar'
     };
 
@@ -277,19 +388,31 @@
     
         
     //  Preamble
-    timeline.push(enter_participant_number);        // Participant number
+    timeline.push(enter_participant_number);    // Participant number
 
-    timeline.push(rl_setup);                   // Set up RL model
-    timeline.push(instructions);               // Experiment instructions 
-    timeline.push(rl_timer);                   // Start and keep updating the timer
-    timeline.push(loop_rl_trial);              // Present new trials until time is up
+    // BLOCK A: REGULAR SLIMSTAMPEN //
+    
+    timeline.push(rl_setupA);                   // Set up RL model
+    timeline.push(instructionsA);               // Experiment instructions 
+    timeline.push(rl_timerA);                   // Start and keep updating the timer
+    timeline.push(loop_rl_trialA);              // Present new trials until time is up
 
-    timeline.push(test_instructions);          // Test instructions 
-    timeline.push(loop_rl_test);               // Test 
+    timeline.push(test_instructionsA);          // Test instructions 
+    timeline.push(loop_rl_testA);               // Test 
 
-    timeline.push(instructions_done);         // Instructions done
+    timeline.push(instructions_doneA);         // Instructions for part two
 
-     
+    // BLOCK B: CONTINUOUS SLIMSTAMPEN //
+
+    timeline.push(rl_setupB);                   // Set up RL model
+
+    timeline.push(rl_timerB);                   // Start and keep updating the timer
+    timeline.push(loop_rl_trialB);              // Present new trials until time is up
+
+    timeline.push(test_instructionsB);          // Test instructions 
+    timeline.push(loop_rl_testB);               // Test 
+
+    timeline.push(instructions_doneB);           // Instructions done
 
     //---------------------//
     //    Run experiment   //
@@ -300,8 +423,10 @@
         timeline: timeline,
         on_interaction_data_update: check_focus_loss,
         on_finish: function () {
+
             save_data("FunWithFlags_" + participant_number, jsPsych.data.get().csv(), function () {
                 document.write('<div class="endscreen" style="text-align:center; border:0px solid; padding:10px; font-size:120%; float:center"><br><p>Done & data saved!</p><br><br><p>Thank you very much for your participation. You can close the window.</p></div>')
+
                 document.close();
             });
         }
