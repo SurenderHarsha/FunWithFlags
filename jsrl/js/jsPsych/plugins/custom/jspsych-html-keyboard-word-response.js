@@ -278,78 +278,97 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
         // calculate the continious correctness score:
 
         var l_dist = function(reference_word,input_word){
+            
+            // First, we convert any capital into small letter, so we dont have any distinction when checking the simillarity of two words.
+            var ref_without_capitals = "";
+            var inp_without_capitals = "";
+  
+            for (var i=0; i< reference.length; i++){
+                var ascii_value = reference.charCodeAt(i);        
+                if (ascii_value <= 96){ ascii_value += 32; }    
+                ref_without_capitals += String.fromCharCode(ascii_value);    
+            }  
+            
+            for (var i=0; i< input.length; i++){
+                var ascii_value = input.charCodeAt(i);        
+                if (ascii_value <= 96){ ascii_value += 32; }    
+                ref_without_capitals += inp.fromCharCode(ascii_value);    
+            }  
+
+            // We place always in the i-axis the shorter word, and in the j-axis the other
             if(reference_word.length < input_word.length){
-      original_word = reference_word;
-      users_word = input_word;
-        }
-        else{
-          original_word = input_word;
-          users_word = reference_word;
-        }
-        
-        var levenshtein_matrix = [];
-        var mins_dist = new Array(users_word.length-1);
-        
-        for (var i=0; i<=original_word.length; i++){
-          levenshtein_matrix[i] = new Array(users_word.length);
-        }
-        
-        for (var i=0; i<users_word.length; i++){
-          mins_dist[i] = 100;
-        }
-        
-        for (var i=0; i<=original_word.length; i++){
-          for (var j=0; j<=users_word.length; j++){
-            if(i==0){
-              levenshtein_matrix[i][j] = j;
-            }
-            else if(j==0){
-              levenshtein_matrix[i][j] = i;
+                j_axis_word = ref_without_capitals;
+                i_axis_word = inp_without_capitals;
             }
             else{
-              if (original_word[i-1] == users_word[j-1] && levenshtein_matrix[i-1][j-1] == 0){
-                levenshtein_matrix[i][j] = 0;
-                mins_dist[j-1] = 0;
-              }
-              else if (original_word[i-1] == users_word[j-1] && users_word[j-1] != users_word[j-2] && original_word[i-1] != original_word[i-2]){
-                deletion = levenshtein_matrix[i-1][j];
-                insertion = levenshtein_matrix[i][j-1];
-                substitution = levenshtein_matrix[i-1][j-1];
-                mins = Math.min(deletion,insertion,substitution);
-                levenshtein_matrix[i][j] = mins;
-                if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
-              }
-              else if (original_word[i-1] == users_word[j-1] && users_word[j-1] == users_word[j-2] && original_word[i-1] == original_word[i-2]){
-                deletion = levenshtein_matrix[i-1][j];
-                insertion = levenshtein_matrix[i][j-1];
-                substitution = levenshtein_matrix[i-1][j-1];
-                mins = Math.min(deletion,insertion,substitution);
-                levenshtein_matrix[i][j] = mins;
-                if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
-              }
-              else{
-                deletion = levenshtein_matrix[i-1][j] + 1;
-                insertion = levenshtein_matrix[i][j-1] + 1;
-                substitution = levenshtein_matrix[i-1][j-1] + 1;
-                mins = Math.min(deletion,insertion,substitution);
-                levenshtein_matrix[i][j] = mins;
-                if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
-              }
+                j_axis_word = inp_without_capitals;
+                i_axis_word = ref_without_capitals;
             }
+        
+            // Now is time to create the matrix to get the distance, and the vector to store the possible values of that distance
+            var levenshtein_matrix = [];
+            var mins_dist = new Array(i_axis_word.length-1);
+        
+            for (var i=0; i<=j_axis_word.length; i++){
+                levenshtein_matrix[i] = new Array(i_axis_word.length);
             }
-        }
         
-        var result = 0;
+            for (var i=0; i<i_axis_word.length; i++){
+                mins_dist[i] = 100;
+            }
         
-        for (var i=0; i<mins_dist.length; i++){
-          result =mins_dist[mins_dist.length-1];
-        }
+            // We fill the matrix, if i=0 or j=0, then we place the j/i value for that item of the matrix. If the letters of both words are the same (and we dont 
+            // have the same letter being used for two comparisons) we put in the item the minimum value obtained before (checking the deletion,insertion or substitution).
+            // Finally, if they are not the same letter, we check the less costly operation (del,ins,sub) and we add 1 to it.
+            for (var i=0; i<=j_axis_word.length; i++){
+                for (var j=0; j<=i_axis_word.length; j++){
+                    if(i==0){ levenshtein_matrix[i][j] = j;}
+                    else if(j==0){ levenshtein_matrix[i][j] = i;}
+                    else{
+                        if (j_axis_word[i-1] == i_axis_word[j-1] && levenshtein_matrix[i-1][j-1] == 0){
+                            levenshtein_matrix[i][j] = 0;
+                            mins_dist[j-1] = 0;
+                        }
+                        else if (j_axis_word[i-1] == i_axis_word[j-1] && i_axis_word[j-1] != i_axis_word[j-2] && j_axis_word[i-1] != j_axis_word[i-2]){
+                            deletion = levenshtein_matrix[i-1][j];
+                            insertion = levenshtein_matrix[i][j-1];
+                            substitution = levenshtein_matrix[i-1][j-1];
+                            mins = Math.min(deletion,insertion,substitution);
+                            levenshtein_matrix[i][j] = mins;
+                            if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
+                        }
+                        else if (j_axis_word[i-1] == i_axis_word[j-1] && i_axis_word[j-1] == i_axis_word[j-2] && j_axis_word[i-1] == j_axis_word[i-2]){
+                            deletion = levenshtein_matrix[i-1][j];
+                            insertion = levenshtein_matrix[i][j-1];
+                            substitution = levenshtein_matrix[i-1][j-1];
+                            mins = Math.min(deletion,insertion,substitution);
+                            levenshtein_matrix[i][j] = mins;
+                            if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
+                        }
+                        else{
+                            deletion = levenshtein_matrix[i-1][j] + 1;
+                            insertion = levenshtein_matrix[i][j-1] + 1;
+                            substitution = levenshtein_matrix[i-1][j-1] + 1;
+                            mins = Math.min(deletion,insertion,substitution);
+                            levenshtein_matrix[i][j] = mins;
+                            if (mins_dist[j-1] >= mins){mins_dist[j-1] = mins}
+                        }
+                    }
+                }
+            }
         
-        result = (reference_word.length - result) / reference_word.length;
+            // The last thing to do in the function is to return the best score (that is in the final position of min_dist) * 100
+            var result = 0;
         
-        if (result < 0){result = 0;}
-        console.log("Score:"+result*100);
-        return result * 100;
+            for (var i=0; i<mins_dist.length; i++){
+                result =mins_dist[mins_dist.length-1];
+            }
+        
+            result = (reference_word.length - result) / reference_word.length;
+        
+            if (result < 0){result = 0;}
+            console.log("Score:"+result*100);
+            return result * 100;
 
         }
 
