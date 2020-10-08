@@ -283,14 +283,14 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
             var ref_without_capitals = "";
             var inp_without_capitals = "";
   
-            for (var i=0; i< reference.length; i++){
-                var ascii_value = reference.charCodeAt(i);        
+            for (var i=0; i< reference_word.length; i++){
+                var ascii_value = reference_word.charCodeAt(i);        
                 if (ascii_value <= 96){ ascii_value += 32; }    
                 ref_without_capitals += String.fromCharCode(ascii_value);    
             }  
             
-            for (var i=0; i< input.length; i++){
-                var ascii_value = input.charCodeAt(i);        
+            for (var i=0; i< input_word.length; i++){
+                var ascii_value = input_word.charCodeAt(i);        
                 if (ascii_value <= 96){ ascii_value += 32; }    
                 ref_without_capitals += inp.fromCharCode(ascii_value);    
             }  
