@@ -292,7 +292,7 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
             for (var i=0; i< input_word.length; i++){
                 var ascii_value = input_word.charCodeAt(i);        
                 if (ascii_value <= 96){ ascii_value += 32; }    
-                ref_without_capitals += inp.fromCharCode(ascii_value);    
+                ref_without_capitals += String.fromCharCode(ascii_value);    
             }  
 
             // We place always in the i-axis the shorter word, and in the j-axis the other
