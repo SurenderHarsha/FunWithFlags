@@ -404,32 +404,32 @@ function min(list, minWith) {
 
 function normalise_reaction_time(response) {
 
+    // normal slimstampen
+
     if (response.block == 'A'){
         const reaction_time = response.correct ? response.rt : 60 * 1000;
         const max_reaction_time = get_max_reaction_time_for_fact(response.text);
+        console.log (reaction_time);
         return reaction_time > max_reaction_time ? max_reaction_time : reaction_time;
         
     }
 
+    // continuous slimstampen
+
     else if (response.block == "B"){
         
         var reaction_time = [];
-        const distance_factor = 0.8;
         
-        if (response.cont_score > 25) {
-            reaction_time = response.rt * distance_factor * (1 + (1 - (response.cont_score/100)) );
+        if (response.cont_score > 25) { // use the continous score if it is higher then 25% only. Otherwise, set the deafault incorrect RT of 6000ms.
+            reaction_time = response.rt * distance_factor * ((1 + (1 - (response.cont_score/100)))^2);
         }
         else {
             reaction_time = 6000
         }
         
         const max_reaction_time = get_max_reaction_time_for_fact(response.text);
-       
-        console.log('actual RT: ' + response.rt)
-        console.log('score: ' + response.cont_score)
-        console.log('adj RT: ' + reaction_time)
-    
         return reaction_time > max_reaction_time ? max_reaction_time : reaction_time;
+        
 
     }
     
