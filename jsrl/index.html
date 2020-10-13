@@ -9,6 +9,7 @@
     <script src="js/jsPsych/jspsych.js"></script>
     <script src="js/jsPsych/plugins/custom/jspsych-html-keyboard-word-response.js"></script>
     <script src="js/jsPsych/plugins/jspsych-survey-text.js"></script>
+    <script src="js/jsPsych/plugins/jspsych-html-slider-response.js"></script>
     <script src="js/jsPsych/plugins/jspsych-instructions.js"></script>
     <script src="js/jsPsych/plugins/jspsych-call-function.js"></script>  
     <script src="lib/jquery-3.3.1.min.js"></script>
@@ -37,8 +38,8 @@
     
     // Durations
 
-    const rl_durationA = 10 * 60000; // Duration learning block A in ms
-    const rl_durationB = 10 * 60000; // Duration learning block B in ms
+    const rl_durationA = 9 * 60000; // Duration learning block A in ms
+    const rl_durationB = 9 * 60000; // Duration learning block B in ms
 
 
     const correct_feedback_duration = 600; // 0.6 seconds
@@ -50,8 +51,8 @@
     const max_trial_duration = 30000 // move on to next trial after 30 seconds
 
     // Materials
-    const n_itemsA = 10; // number of items in block A
-    const n_itemsB = 10; // number of items in block B
+    const n_itemsA = 25; // number of items in block A
+    const n_itemsB = 25; // number of items in block B
     const shuffle_items = true; // new items are picked randomly
     const preload_audio = true; // preloading prevents delays
     const permissible_edit_distance = 4
@@ -148,7 +149,7 @@
         type: 'survey-text',
         questions: [
             {
-                prompt:  '<h4>FUN WITH FLAGS </h4>  <br> <br> \ Welcome and thank you for particiapting in this User Model experiment! Please enter your name below:'
+                prompt:  '<h4>FUN WITH FLAGS </h4>  <br> <br> \ Welcome and thank you for participating in this User Model experiment! Please enter your name below:'
             }
         ],
         on_finish: function (data) {
@@ -175,7 +176,8 @@
         pages: ['<h1>Instructions </h1> <br>  \
         <p> In this experiment, you will learn the names of imaginary countries from flags. </br>\
         The experiment consists of two 10-minute learning sessons and two test sessions. </br>\
-        We will start with the first learning session. Please type the correct country name in the text box.\
+        Finally, we will ask you to answer two questions about your user experience.</br>\
+        We will start with the first learning session. <b> Please type the correct country name in the text box<b>.\
         <p> Press the <kbd>spacebar </kbd> to continue.</p>'],
         key_forward: 'spacebar'
     };
@@ -363,10 +365,44 @@
        }
     };
 
+    // USER EXPERIENCE QUESTIONNAIRE //
+
+    var instructions_quest = {
+        type: 'instructions',
+        pages: ['<h1> Done, thank you! </h1> <br>  \
+        <p> Well done! Next, we will ask you to answer two short questions about your user experience.\
+        <p> Press the <kbd>spacebar </kbd> to continue.</p>'],
+        key_forward: 'spacebar'
+    };
+
+    var questionnaire_1 = {
+    type: 'html-slider-response',
+    stimulus: '<p> Please indicate, on a scale from 0-10, how much you liked the study method used in the <b> first learning session <b>:   <p> ',
+    labels: ['0 - not at all', '100 - very much'],
+    min: 0,
+    max: 100,
+    start: 0,
+    on_finish: function (data) {
+          record_response(data);
+        }
+    };  
+
+    var questionnaire_2 = {
+    type: 'html-slider-response',
+    stimulus: ' <p> Please indicate, on a scale from 0-10, how much you liked the study method used in the <b> second learning session <b>: <p>',
+    labels: ['0 - not at all', '100 - very much'],
+    min: 0,
+    max: 100,
+    start: 0,
+    on_finish: function (data) {
+          record_response(data);
+        }
+    };  
+
     var instructions_doneB = {
         type: 'instructions',
         pages: ['<h4> DONE! </h4> <br>  \
-        <p> Thank you! You completed this experiment. Please press the <kbd>spacebar </kbd> to save the data <p>'],
+        <p> Thank you! You completed this experiment. Please press the <kbd>spacebar </kbd> to save the data. <p>'],
         key_forward: 'spacebar'
     };
 
@@ -377,9 +413,8 @@
 
     var timeline = [];
         
-    
-        
     //  Preamble
+
     timeline.push(enter_participant_number);    // Participant number
 
     // BLOCK A: REGULAR SLIMSTAMPEN //
@@ -392,7 +427,7 @@
     timeline.push(test_instructionsA);          // Test instructions 
     timeline.push(loop_rl_testA);               // Test 
 
-    timeline.push(instructions_doneA);         // Instructions for part two
+    timeline.push(instructions_doneA);          // Instructions for part two
 
     // BLOCK B: CONTINUOUS SLIMSTAMPEN //
 
@@ -404,7 +439,13 @@
     timeline.push(test_instructionsB);          // Test instructions 
     timeline.push(loop_rl_testB);               // Test 
 
-    timeline.push(instructions_doneB);           // Instructions done
+    // USER EXPERIENCE QUESTIONNAIRE //
+
+    timeline.push(instructions_quest)           // Instructions for questionnaire
+    timeline.push(questionnaire_1);             // First question
+    timeline.push(questionnaire_2);             // Second question
+
+    timeline.push(instructions_doneB);          // Instructions done
 
     //---------------------//
     //    Run experiment   //

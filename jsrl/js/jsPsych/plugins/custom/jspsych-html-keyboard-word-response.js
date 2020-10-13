@@ -190,7 +190,7 @@ jsPsych.plugins["html-keyboard-word-response"] = (function () {
                 } else if (cont_score <= 75 && cont_score >= 50) {
                     feedback = '<h3 style="color:#FB9902;"> Getting there! Your score is ' + Math.round(cont_score) + '%. Pay attention to the spelling: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
                 } else if (cont_score <= 99 && cont_score >= 75) {
-                    feedback = '<h3 style="color:#FCCC1A;"> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the detials: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
+                    feedback = '<h3 style="color:#FCCC1A;"> Almost correct! Your score is ' + Math.round(cont_score) + '%. Pay attention to the details: <b>' + trial.question.answer + '</b></p>', new Audio('res/audio/incorrect.wav').play();
                 } else if (cont_score >= 99) {
                     feedback = '<p style="color:#B2D732;">  Well done, correct! </p>', new Audio('res/audio/correct.wav').play();
                
