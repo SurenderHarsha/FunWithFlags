@@ -1,21 +1,20 @@
 # jsrl - FUN WITH FLAGS
 
-Javascript implementation of RUGged Learning for studying the names of flags, including the implementation of continuous correctness scores.
+Javascript implementation of RUGged Learning for studying the names of flags, including the implementation of continuous correctness scores and extensive, color-based feedback.
 
+Here follows a short description of the most important files:
 
-This folder contains several files. Here follows a short description of the most important files.
 JSRL
     css
         This folder contains all styling and layout scripts
     data
         In this folder, participant data will be stored in .csv file format
     js 
-        This folder contains all scripts that are used in the program. The most important ones are 
+        This folder contains all scripts that are used in the program. The most important ones are:
             - index.html, which contains all timeline components of the experiment
-            - rl-model.js, which contains the python code for the rugged learning model.
-            - jspsych-html-keyboard-word-response, which is a plugin that is used to create each trial (listen to the keyboard, etc.) In this plugin, the correctness of the trials are estimated. 
-
-            
+            - rl-model.js, which contains the python code for the rugged learning model. In this file, the reaction time is updated using the continous correctness score.
+            - jspsych-html-keyboard-word-response, which is a plugin that is used to create each trial (listen to the keyboard, etc.) In this plugin, the correctness of the trials are estimated and the feedback prompts are prepared.
+        
           
 
 To run the experiment:
