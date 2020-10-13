@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+    web:
+        build: ./docker/web
+        ports:
+            - "38665:80"
+        volumes:
+            - ./jsrl:/jsrl
+            - ./site.conf:/etc/nginx/conf.d/default.conf
+    php:
+        build: ./docker/php
+        volumes:
+            - ./jsrl:/jsrl
+            - ./log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
